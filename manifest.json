@@ -1,10 +1,10 @@
 {
-	"id": "obsidian-sample-plugin",
-	"name": "Sample Plugin",
+	"id": "better-inline-fields",
+	"name": "Better Inline Fields",
 	"version": "1.0.1",
 	"minAppVersion": "0.12.0",
-	"description": "This is a sample plugin for Obsidian. This plugin demonstrates some of the capabilities of the Obsidian API.",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
+	"description": "Obsidian plugin to enhance Dataview style inline fields",
+	"author": "David Šarman",
+	"authorUrl": "https://sarman.work",
 	"isDesktopOnly": false
 }
