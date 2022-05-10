@@ -97,6 +97,7 @@ function addDecoratorsForLine(
 	}));
 	const allIndices = trueIndices
 		.concat(falseIndices)
+		// All added decorators need to be added to the set sorted by index
 		.sort(({ index: indexA }, { index: indexB }) => indexA - indexB);
 
 	allIndices.forEach(({ kind, index }) => {
@@ -120,7 +121,6 @@ function getCheckboxDecorators(view: EditorView) {
 
 		for (const lineNumber of range(startLine.number, endLine.number)) {
 			const line = view.state.doc.line(lineNumber);
-			console.log(line);
 			addDecoratorsForLine(line.text, line.from, builder);
 		}
 	}
