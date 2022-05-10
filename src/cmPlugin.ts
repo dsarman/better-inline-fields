@@ -62,21 +62,35 @@ function getIndicesOf(text: string, search: string): number[] {
  * @param index Target index of the decorator
  * @param kind type of checkbox
  * @param from starting position
+ * @param replace If the widget should replace the value text or not
  */
 function createDecorator(
 	index: number,
 	kind: boolean,
-	from: number
-): [Decoration, number] | null {
+	from: number,
+	replace: boolean
+): [Decoration, number, number] | null {
 	// If either boolean value was found, we create the checkbox widget
-	const deco = Decoration.widget({
-		widget: new CheckboxWidget(kind),
-		side: 1,
-	});
+	let deco: Decoration;
+	if (replace) {
+		deco = Decoration.replace({
+			widget: new CheckboxWidget(kind),
+		});
+	} else {
+		deco = Decoration.widget({
+			widget: new CheckboxWidget(kind),
+			side: 1,
+		});
+	}
 
-	const fromIndex =
-		from + index + (kind ? TRUE_VALUE.length : FALSE_VALUE.length);
-	return [deco, fromIndex];
+	const fromIndex = from + index + 3;
+	const toIndex =
+		fromIndex - 3 + (kind ? TRUE_VALUE.length : FALSE_VALUE.length);
+	if (replace) {
+		return [deco, fromIndex, toIndex];
+	} else {
+		return [deco, toIndex, toIndex];
+	}
 }
 
 /**
@@ -85,7 +99,8 @@ function createDecorator(
 function addDecoratorsForLine(
 	line: string,
 	from: number,
-	builder: RangeSetBuilder<Decoration>
+	builder: RangeSetBuilder<Decoration>,
+	shouldReplace: boolean
 ) {
 	const trueIndices = getIndicesOf(line, TRUE_VALUE).map((index) => ({
 		index,
@@ -101,11 +116,11 @@ function addDecoratorsForLine(
 		.sort(({ index: indexA }, { index: indexB }) => indexA - indexB);
 
 	allIndices.forEach(({ kind, index }) => {
-		const decoratorInfo = createDecorator(index, kind, from);
+		const decoratorInfo = createDecorator(index, kind, from, shouldReplace);
 		if (!decoratorInfo) return;
 
-		const [decorator, fromIndex] = decoratorInfo;
-		builder.add(fromIndex, fromIndex, decorator);
+		const [decorator, fromIndex, toIndex] = decoratorInfo;
+		builder.add(fromIndex, toIndex, decorator);
 	});
 }
 
@@ -121,7 +136,7 @@ function getCheckboxDecorators(view: EditorView) {
 
 		for (const lineNumber of range(startLine.number, endLine.number)) {
 			const line = view.state.doc.line(lineNumber);
-			addDecoratorsForLine(line.text, line.from, builder);
+			addDecoratorsForLine(line.text, line.from, builder, false);
 		}
 	}
 
@@ -157,7 +172,7 @@ export const checkboxPlugin = ViewPlugin.fromClass(
 		}
 
 		update(update: ViewUpdate) {
-			if (update.docChanged || update.viewportChanged)
+			if (update.docChanged || update.viewportChanged || update.selectionSet)
 				this.decorations = getCheckboxDecorators(update.view);
 		}
 	},
