@@ -1,6 +1,6 @@
 {
 	"name": "better-inline-fields",
-	"version": "1.0.1",
+	"version": "0.0.4",
 	"description": "Obsidian plugin to enhance Dataview style inline fields.",
 	"main": "main.js",
 	"scripts": {
