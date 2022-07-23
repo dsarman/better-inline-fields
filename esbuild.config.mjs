@@ -26,6 +26,7 @@ if (!outdir) {
 
 const moveStaticFiles = () => {
 	fs.copyFileSync("./manifest.json", `${outdir}/manifest.json`);
+	fs.copyFileSync("./styles.css", `${outdir}/styles.css`);
 	try {
 		fs.writeFileSync(`${outdir}/.hotreload`, "", { flag: "wx" });
 	} catch {
@@ -69,7 +70,6 @@ esbuild
 		watch: !prod && {
 			onRebuild(error) {
 				if (error) { return }
-				console.log("I was here")
 				moveStaticFiles();
 			}
 		},

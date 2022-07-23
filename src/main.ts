@@ -3,11 +3,13 @@ import { checkboxPlugin } from 'cmPlugin';
 import { BetterInlineFieldsSettings, BetterInlineFieldsSettingTab } from "settings/BetterInlineFieldsSettingTab";
 import { PagesEditSuggest } from "suggestions/PagesEditSuggest";
 
+const DEFAULT_SETTINGS = {autocomplete: []}
+
 export default class BetterInlineFieldsPlugin extends Plugin {
-	settings: BetterInlineFieldsSettings
+	settings: BetterInlineFieldsSettings = DEFAULT_SETTINGS
 
 	async loadSettings() {
-		this.settings = Object.assign({}, {autocomplete: []}, await this.loadData());
+		this.settings = Object.assign({}, DEFAULT_SETTINGS , await this.loadData());
 	}
 
 	async saveSettings() {
