@@ -6,8 +6,8 @@ import {
 	ViewUpdate,
 	WidgetType,
 } from '@codemirror/view';
-import { RangeSetBuilder } from '@codemirror/rangeset';
 import range from 'lodash/range';
+import { RangeSetBuilder } from '@codemirror/state';
 
 const TRUE_VALUE = ':: true';
 const FALSE_VALUE = ':: false';
