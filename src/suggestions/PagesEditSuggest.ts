@@ -46,17 +46,25 @@ export class PagesEditSuggest extends EditorSuggest<Suggestion> {
 			(autocomplete) => autocomplete.field
 		);
 		for (const field of fields) {
-			const fieldText = `${field}:: `;
-			const startPos = {
-				line: cursor.line,
-				ch: fieldText.length,
-			};
+			let fieldText = `${field}:: `;
 			if (
 				!editor
 					.getRange({ line: cursor.line, ch: 0 }, cursor)
 					.startsWith(fieldText)
-			)
-				continue;
+			) {
+				fieldText = fieldText.slice(0, -1);
+				if (
+					!editor
+						.getRange({ line: cursor.line, ch: 0 }, cursor)
+						.startsWith(fieldText)
+				)
+					continue;
+			}
+
+			const startPos = {
+				line: cursor.line,
+				ch: fieldText.length,
+			};
 			const fieldValue = editor.getRange(startPos, cursor);
 
 			return {
