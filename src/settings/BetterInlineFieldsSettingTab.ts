@@ -44,7 +44,6 @@ export class BetterInlineFieldsSettingTab extends PluginSettingTab {
 						.onChange((newValue) => {
 							this.plugin.settings.autocomplete[index].field = newValue;
 							this.plugin.saveSettings();
-							this.display();
 						})
 				)
 				.addSearch((search) => {
