@@ -81,7 +81,7 @@ class Suggest<T> {
 	}
 
 	useSelectedItem(event: MouseEvent | KeyboardEvent) {
-		if (!this.selectedItem) return;
+		if (this.selectedItem === undefined) return;
 		const currentValue = this.values[this.selectedItem];
 		if (currentValue) {
 			this.owner.selectSuggestion(currentValue, event);
@@ -145,6 +145,8 @@ export abstract class TextInputSuggest<T> implements ISuggestOwner<T> {
 			this.close();
 			return;
 		}
+
+		console.log('Was in onInputChanged');
 
 		if (suggestions.length > 0) {
 			this.suggest.setSuggestions(suggestions);
