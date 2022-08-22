@@ -16,10 +16,19 @@ export class BetterInlineFieldsSettingTab extends PluginSettingTab {
 
 	display(): void {
 		const { containerEl } = this;
+
 		containerEl.empty();
 		containerEl.createEl('h2', {
 			text: 'Settings for Better Inline Fields plugin',
 		});
+
+		const isDataviewEnabled = this.app.plugins.enabledPlugins.has('dataview');
+		if (!isDataviewEnabled) {
+			containerEl.createEl('h1', {
+				text: 'You need to install and enable the Obsidian Dataview plugin to use the autocompletion feature.',
+			});
+			return;
+		}
 
 		new Setting(this.containerEl)
 			.setName('Add New')
