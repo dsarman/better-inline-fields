@@ -10,5 +10,8 @@ Simple Obsidian plugin that aims to improve work with [Dataview inline fields](h
 
 - [ ] Add autocomplete to field values based on same name field in other files.
 
+## Incompatibilities
+- This plugin is not compatible with the [Various Complements](https://tadashi-aikawa.github.io/docs-obsidian-various-complements-plugin/) with the "Complement automatically" setting turned on (see [#2](https://github.com/dsarman/better-inline-fields/issues/2)).
+
 ## Attributions
 - The settings suggest input uses code from [obsidian-periodic-notes](https://github.com/liamcain/obsidian-periodic-notes)
