@@ -146,8 +146,6 @@ export abstract class TextInputSuggest<T> implements ISuggestOwner<T> {
 			return;
 		}
 
-		console.log('Was in onInputChanged');
-
 		if (suggestions.length > 0) {
 			this.suggest.setSuggestions(suggestions);
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
