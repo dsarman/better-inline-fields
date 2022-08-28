@@ -10,6 +10,10 @@ import {
 } from 'obsidian';
 import BetterInlineFieldsPlugin from 'main';
 import { getAPI } from 'obsidian-dataview';
+import { DataArray } from 'obsidian-dataview/lib/api/data-array';
+import { Literal } from 'obsidian-dataview/lib/data-model/value';
+
+type DataviewPages = DataArray<Record<string, Literal> & { file: any }>;
 
 interface Suggestion {
 	query: string;
@@ -116,22 +120,30 @@ export class PagesEditSuggest extends EditorSuggest<Suggestion> {
 			(autocomplete) => autocomplete.field === field
 		);
 		if (!searchFolder) return [];
-		const pages = api.pages(`"${searchFolder.folder}"`);
-		const suggestions = [
-			...pages
-				.filter((page) =>
-					page.file.name.toLowerCase().normalize().includes(query.toLowerCase())
-				)
-				.map((page) => ({
-					query,
-					startIndex,
-					label: page.file.name,
-				}))
-				.array(),
+		const pages = api.pages(`"${searchFolder.folder}"`) as DataviewPages;
+		const labels: string[] = [];
+
+		pages.forEach((page) => {
+			labels.push(page.file.name);
+			page.file.aliases.forEach((alias: string) =>
+				labels.push(`${page.file.name}|${alias}`)
+			);
+		});
+
+		const allSuggestions = labels
+			.filter((label) =>
+				label.toLowerCase().normalize().includes(query.toLowerCase())
+			)
+			.map((label) => ({
+				query,
+				label,
+				startIndex,
+			}));
+
+		return [
+			...allSuggestions,
 			{ query, label: '+ Create New', startIndex, isEmptyChoice: true, field },
 		];
-		console.log(suggestions);
-		return suggestions;
 	}
 
 	renderSuggestion(suggestion: Suggestion, el: HTMLElement): void {
@@ -161,8 +173,6 @@ export class PagesEditSuggest extends EditorSuggest<Suggestion> {
 			line: startPos.line,
 			ch: startPos.ch + suggestion.startIndex,
 		};
-		console.log(fromPos);
-		console.log(endPos);
 
 		activeView.editor.replaceRange(`[[${text}]]`, fromPos, endPos);
 
