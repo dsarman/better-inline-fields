@@ -96,7 +96,17 @@ export class PagesEditSuggest extends EditorSuggest<Suggestion> {
 			const match = fieldValue.match(fieldValueRegexp);
 			if (!match || match.length < 2) return [];
 			query = match[1];
-			startIndex = fieldValue.indexOf(query) || fieldValue.length;
+			const withSpaceIndex = fieldValue.indexOf(`, ${query}`);
+			if (withSpaceIndex) {
+				startIndex = withSpaceIndex + 2;
+			} else {
+				const withoutSpaceIndex = fieldValue.indexOf(`,${query}`);
+				if (withoutSpaceIndex) {
+					startIndex = withSpaceIndex - 1;
+				} else {
+					startIndex = fieldValue.length;
+				}
+			}
 		} else {
 			query = fieldValue;
 			startIndex = 0;
@@ -107,7 +117,7 @@ export class PagesEditSuggest extends EditorSuggest<Suggestion> {
 		);
 		if (!searchFolder) return [];
 		const pages = api.pages(`"${searchFolder.folder}"`);
-		return [
+		const suggestions = [
 			...pages
 				.filter((page) =>
 					page.file.name.toLowerCase().normalize().includes(query.toLowerCase())
@@ -120,6 +130,8 @@ export class PagesEditSuggest extends EditorSuggest<Suggestion> {
 				.array(),
 			{ query, label: '+ Create New', startIndex, isEmptyChoice: true, field },
 		];
+		console.log(suggestions);
+		return suggestions;
 	}
 
 	renderSuggestion(suggestion: Suggestion, el: HTMLElement): void {
@@ -149,6 +161,9 @@ export class PagesEditSuggest extends EditorSuggest<Suggestion> {
 			line: startPos.line,
 			ch: startPos.ch + suggestion.startIndex,
 		};
+		console.log(fromPos);
+		console.log(endPos);
+
 		activeView.editor.replaceRange(`[[${text}]]`, fromPos, endPos);
 
 		const cursorPos = {
