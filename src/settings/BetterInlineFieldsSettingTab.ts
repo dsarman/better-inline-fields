@@ -4,6 +4,7 @@ import { FolderSuggest } from 'settings/FolderSuggest';
 
 export interface BetterInlineFieldsSettings {
 	autocomplete: { field: string; folder: string }[];
+	regexpTrigger: string;
 }
 
 export class BetterInlineFieldsSettingTab extends PluginSettingTab {
@@ -29,6 +30,21 @@ export class BetterInlineFieldsSettingTab extends PluginSettingTab {
 			});
 			return;
 		}
+
+		new Setting(this.containerEl)
+			.setName('Autocompletion Regexp Trigger')
+			.setDesc(
+				'Character that triggers regexp search in autocompletion (needs to be at start)'
+			)
+			.addText((text) =>
+				text
+					.setPlaceholder('/')
+					.setValue(this.plugin.settings.regexpTrigger)
+					.onChange((newValue) => {
+						this.plugin.settings.regexpTrigger = newValue;
+						this.plugin.saveSettings();
+					})
+			);
 
 		new Setting(this.containerEl)
 			.setName('Add New')

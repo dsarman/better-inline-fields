@@ -131,9 +131,14 @@ export class PagesEditSuggest extends EditorSuggest<Suggestion> {
 		});
 
 		const allSuggestions = labels
-			.filter((label) =>
-				label.toLowerCase().normalize().includes(query.toLowerCase())
-			)
+			.filter((label) => {
+				// The query is regex
+				if (query.startsWith(this.plugin.settings.regexpTrigger)) {
+					return label.match(new RegExp(query.slice(1)));
+				} else {
+					return label.toLowerCase().normalize().includes(query.toLowerCase());
+				}
+			})
 			.map((label) => ({
 				query,
 				label,
