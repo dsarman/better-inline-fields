@@ -51,23 +51,20 @@ export class PagesEditSuggest extends EditorSuggest<Suggestion> {
 		);
 		for (const field of fields) {
 			let fieldText = `${field}:: `;
-			if (
-				!editor
-					.getRange({ line: cursor.line, ch: 0 }, cursor)
-					.startsWith(fieldText)
-			) {
+			let startIndex = editor
+				.getRange({ line: cursor.line, ch: 0 }, cursor)
+				.indexOf(fieldText);
+			if (startIndex < 0) {
 				fieldText = fieldText.slice(0, -1);
-				if (
-					!editor
-						.getRange({ line: cursor.line, ch: 0 }, cursor)
-						.startsWith(fieldText)
-				)
-					continue;
+				startIndex = editor
+					.getRange({ line: cursor.line, ch: 0 }, cursor)
+					.indexOf(fieldText);
+				if (startIndex < 0) continue;
 			}
 
 			const startPos = {
 				line: cursor.line,
-				ch: fieldText.length,
+				ch: startIndex + fieldText.length,
 			};
 			const fieldValue = editor.getRange(startPos, cursor);
 
@@ -132,12 +129,18 @@ export class PagesEditSuggest extends EditorSuggest<Suggestion> {
 
 		const allSuggestions = labels
 			.filter((label) => {
-				// The query is regex
+				let sourceText: string;
+				let queryObject: string | RegExp;
+
 				if (query.startsWith(this.plugin.settings.regexpTrigger)) {
-					return label.match(new RegExp(query.slice(1)));
+					sourceText = label;
+					queryObject = new RegExp(query.slice(1));
 				} else {
-					return label.toLowerCase().normalize().includes(query.toLowerCase());
+					sourceText = label.toLowerCase().normalize();
+					queryObject = query.toLowerCase();
 				}
+
+				return sourceText.match(queryObject);
 			})
 			.map((label) => ({
 				query,
