@@ -15,7 +15,6 @@ Simple Obsidian plugin that aims to improve work with [Dataview inline fields](h
 
 
 ## Planned
-- [ ] 
 - [ ] Add autocomplete to field values based on same name field in other files.
 
 ## Incompatibilities
