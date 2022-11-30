@@ -1,7 +1,7 @@
 {
 	"id": "better-inline-fields",
 	"name": "Better Inline Fields",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"minAppVersion": "0.15.0",
 	"description": "Obsidian plugin to enhance Dataview style inline fields",
 	"author": "David Šarman",
