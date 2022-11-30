@@ -62,15 +62,16 @@ export class BetterInlineFieldsSettingTab extends PluginSettingTab {
 
 		this.plugin.settings.autocomplete.forEach((autocomplete, index) => {
 			const setting = new Setting(containerEl)
-				.addText((text) =>
+				.addText((text) => {
 					text
 						.setPlaceholder('Inline field name')
 						.setValue(autocomplete.field)
 						.onChange((newValue) => {
 							this.plugin.settings.autocomplete[index].field = newValue;
 							this.plugin.saveSettings();
-						})
-				)
+						});
+					text.inputEl.addClass('better_inline_fields_setting');
+				})
 				.addSearch((search) => {
 					new FolderSuggest(this.app, search.inputEl);
 					search
@@ -80,6 +81,8 @@ export class BetterInlineFieldsSettingTab extends PluginSettingTab {
 							this.plugin.settings.autocomplete[index].folder = newValue;
 							this.plugin.saveSettings();
 						});
+					// @ts-ignore
+					search.containerEl.addClass('better_inline_fields_setting');
 				})
 				.addExtraButton((button) => {
 					button

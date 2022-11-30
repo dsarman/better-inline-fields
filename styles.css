@@ -4,3 +4,7 @@
 	filter: hue-rotate(42deg);
 	vertical-align: sub !important;
 }
+
+.better_inline_fields_setting {
+	width: calc(100% - 20px);
+}
