@@ -24,7 +24,7 @@ interface Suggestion {
 }
 
 const SEPARATOR = ';-;';
-const fieldValueRegexp = /(?:\[\[.*]])*,*\s*(.*)/;
+const fieldValueRegexp = /(\[\[.*]],?\s??)+(.*)/;
 
 export class PagesEditSuggest extends EditorSuggest<Suggestion> {
 	private plugin: BetterInlineFieldsPlugin;
@@ -51,14 +51,11 @@ export class PagesEditSuggest extends EditorSuggest<Suggestion> {
 		);
 		for (const field of fields) {
 			let fieldText = `${field}:: `;
-			let startIndex = editor
-				.getRange({ line: cursor.line, ch: 0 }, cursor)
-				.indexOf(fieldText);
+			const text = editor.getRange({ line: cursor.line, ch: 0 }, cursor);
+			let startIndex = text.indexOf(fieldText);
 			if (startIndex < 0) {
 				fieldText = fieldText.slice(0, -1);
-				startIndex = editor
-					.getRange({ line: cursor.line, ch: 0 }, cursor)
-					.indexOf(fieldText);
+				startIndex = text.indexOf(fieldText);
 				if (startIndex < 0) continue;
 			}
 
@@ -95,13 +92,17 @@ export class PagesEditSuggest extends EditorSuggest<Suggestion> {
 		// If we already have a link value, we need to exclude it from matching
 		if (fieldValue.contains('[[')) {
 			const match = fieldValue.match(fieldValueRegexp);
-			if (!match || match.length < 2) return [];
-			query = match[1];
-			const withSpaceIndex = fieldValue.indexOf(`, ${query}`);
+			if (!match || match.length < 3) return [];
+			console.log(match);
+			const preQuery = match[1].length;
+			query = match[2].trim();
+			const withSpaceIndex =
+				preQuery + fieldValue.slice(preQuery).indexOf(` ${query}`);
 			if (withSpaceIndex) {
-				startIndex = withSpaceIndex + 2;
+				startIndex = withSpaceIndex + 1;
 			} else {
-				const withoutSpaceIndex = fieldValue.indexOf(`,${query}`);
+				const withoutSpaceIndex =
+					preQuery + fieldValue.slice(preQuery).indexOf(`${query}`);
 				if (withoutSpaceIndex) {
 					startIndex = withSpaceIndex - 1;
 				} else {
@@ -176,6 +177,8 @@ export class PagesEditSuggest extends EditorSuggest<Suggestion> {
 				this.app.vault.create(`${folderPath}/${text}.md`, '');
 			}
 		}
+
+		console.log(startPos, suggestion);
 
 		const fromPos = {
 			line: startPos.line,
