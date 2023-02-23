@@ -93,7 +93,6 @@ export class PagesEditSuggest extends EditorSuggest<Suggestion> {
 		if (fieldValue.contains('[[')) {
 			const match = fieldValue.match(fieldValueRegexp);
 			if (!match || match.length < 3) return [];
-			console.log(match);
 			const preQuery = match[1].length;
 			query = match[2].trim();
 			const withSpaceIndex =
@@ -177,8 +176,6 @@ export class PagesEditSuggest extends EditorSuggest<Suggestion> {
 				this.app.vault.create(`${folderPath}/${text}.md`, '');
 			}
 		}
-
-		console.log(startPos, suggestion);
 
 		const fromPos = {
 			line: startPos.line,
