@@ -6,7 +6,7 @@ import {
 } from 'settings/BetterInlineFieldsSettingTab';
 import { PagesEditSuggest } from 'suggestions/PagesEditSuggest';
 
-const DEFAULT_SETTINGS = { autocomplete: [], regexpTrigger: '/' };
+const DEFAULT_SETTINGS: BetterInlineFieldsSettings = { autocomplete: [], regexpTrigger: '/', checkboxPosition: 'right' };
 
 export default class BetterInlineFieldsPlugin extends Plugin {
 	settings: BetterInlineFieldsSettings = DEFAULT_SETTINGS;
@@ -21,7 +21,8 @@ export default class BetterInlineFieldsPlugin extends Plugin {
 
 	async onload() {
 		await this.loadSettings();
-		this.registerEditorExtension(checkboxPlugin);
+		const extension = checkboxPlugin(this.settings.checkboxPosition);
+		this.registerEditorExtension(extension);
 		this.addSettingTab(new BetterInlineFieldsSettingTab(this.app, this));
 		this.registerEditorSuggest(new PagesEditSuggest(this.app, this));
 	}

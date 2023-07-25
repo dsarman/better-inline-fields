@@ -2,9 +2,16 @@ import { App, PluginSettingTab, Setting } from 'obsidian';
 import BetterInlineFieldsPlugin from 'main';
 import { FolderSuggest } from 'settings/FolderSuggest';
 
+export type CheckboxPosition = 'left' | 'right' | 'none';
+
 export interface BetterInlineFieldsSettings {
 	autocomplete: { field: string; folder: string }[];
 	regexpTrigger: string;
+	checkboxPosition: CheckboxPosition;
+}
+
+function isCheckboxPosition(newValue: string): newValue is CheckboxPosition {
+	return ['left', 'right', 'none'].includes(newValue);
 }
 
 export class BetterInlineFieldsSettingTab extends PluginSettingTab {
@@ -30,6 +37,20 @@ export class BetterInlineFieldsSettingTab extends PluginSettingTab {
 			});
 			return;
 		}
+
+		new Setting(this.containerEl)
+			.setName('Boolean inline field checkbox position')
+			.setDesc('Position of the checkbox for inline boolean fields (eg. "value:: true" and "[[value:: true]]")')
+			.addDropdown((dropdown) => {
+				dropdown.addOption('left', 'Begging of line');
+				dropdown.addOption('right', 'After the value');
+				dropdown.addOption('none', 'None');
+				dropdown.onChange(async (newValue) => {
+					if (!isCheckboxPosition(newValue)) return;
+					this.plugin.settings.checkboxPosition = newValue;
+					await this.plugin.saveSettings();
+				});
+			});
 
 		new Setting(this.containerEl)
 			.setName('Autocompletion Regexp Trigger')

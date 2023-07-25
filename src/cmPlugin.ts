@@ -8,6 +8,7 @@ import {
 } from '@codemirror/view';
 import range from 'lodash/range';
 import { RangeSetBuilder } from '@codemirror/state';
+import { CheckboxPosition } from 'settings/BetterInlineFieldsSettingTab';
 
 const TRUE_VALUE = ':: true';
 const FALSE_VALUE = ':: false';
@@ -68,8 +69,11 @@ function createDecorator(
 	index: number,
 	kind: boolean,
 	from: number,
-	replace: boolean
+	replace: boolean,
+	checkboxPosition: CheckboxPosition,
+	leftStart?: number,
 ): [Decoration, number, number] | null {
+	if (checkboxPosition === 'none') return null;
 	// If either boolean value was found, we create the checkbox widget
 	let deco: Decoration;
 	if (replace) {
@@ -89,8 +93,13 @@ function createDecorator(
 	if (replace) {
 		return [deco, fromIndex, toIndex];
 	} else {
-		return [deco, toIndex, toIndex];
+		if (checkboxPosition === 'left' && leftStart) {
+			return [deco, from + leftStart, from + leftStart];
+		} else if (checkboxPosition === 'right') {
+			return [deco, toIndex, toIndex];
+		}
 	}
+	return null;
 }
 
 /**
@@ -100,7 +109,8 @@ function addDecoratorsForLine(
 	line: string,
 	from: number,
 	builder: RangeSetBuilder<Decoration>,
-	shouldReplace: boolean
+	shouldReplace: boolean,
+	checkboxPosition: CheckboxPosition
 ) {
 	const trueIndices = getIndicesOf(line, TRUE_VALUE).map((index) => ({
 		index,
@@ -116,7 +126,11 @@ function addDecoratorsForLine(
 		.sort(({ index: indexA }, { index: indexB }) => indexA - indexB);
 
 	allIndices.forEach(({ kind, index }) => {
-		const decoratorInfo = createDecorator(index, kind, from, shouldReplace);
+		let leftStart;
+		if (checkboxPosition === 'left') {
+			leftStart = getStartOfLineIndex(line);
+		}
+		const decoratorInfo = createDecorator(index, kind, from, shouldReplace, checkboxPosition, leftStart);
 		if (!decoratorInfo) return;
 
 		const [decorator, fromIndex, toIndex] = decoratorInfo;
@@ -124,10 +138,17 @@ function addDecoratorsForLine(
 	});
 }
 
+function getStartOfLineIndex(line: string): number {
+  const trimmedLine = line.trim();
+  const isBulletPoint = trimmedLine.startsWith("- ");
+  const startIndex = isBulletPoint ? 2 : 0;
+  return line.indexOf(trimmedLine) + startIndex;
+}
+
 /**
  * Returns all CodeMirror checkbox decorators for boolean values.
  */
-function getCheckboxDecorators(view: EditorView) {
+function getCheckboxDecorators(view: EditorView, checkboxPosition: CheckboxPosition) {
 	const builder = new RangeSetBuilder<Decoration>();
 	// We iterate over the visible ranges
 	for (const { from, to } of view.visibleRanges) {
@@ -136,7 +157,7 @@ function getCheckboxDecorators(view: EditorView) {
 
 		for (const lineNumber of range(startLine.number, endLine.number)) {
 			const line = view.state.doc.line(lineNumber);
-			addDecoratorsForLine(line.text, line.from, builder, false);
+			addDecoratorsForLine(line.text, line.from, builder, false, checkboxPosition);
 		}
 	}
 
@@ -163,33 +184,34 @@ const toggleBoolean = (view: EditorView, pos: number) => {
 /**
  * The actual CodeMirror plugin definition that is exported and used in Obsidian.
  */
-export const checkboxPlugin = ViewPlugin.fromClass(
-	class {
-		decorations: DecorationSet;
-
-		constructor(view: EditorView) {
-			this.decorations = getCheckboxDecorators(view);
-		}
-
-		update(update: ViewUpdate) {
-			if (update.docChanged || update.viewportChanged || update.selectionSet)
-				this.decorations = getCheckboxDecorators(update.view);
-		}
-	},
-	{
-		decorations: (value) => value.decorations,
-		eventHandlers: {
-			mousedown: (e, view) => {
-				const target = e.target as HTMLElement;
-				if (
-					target &&
-					target.nodeName === 'INPUT' &&
-					target.classList.contains(TOGGLE_CLASSNAME)
-				) {
-					return toggleBoolean(view, view.posAtDOM(target));
-				}
-				return false;
-			},
+export const checkboxPlugin = (checkboxPosition: CheckboxPosition) => {
+	return ViewPlugin.fromClass(
+		class {
+			decorations: DecorationSet;
+	
+			constructor(view: EditorView) {
+				this.decorations = getCheckboxDecorators(view, checkboxPosition);
+			}
+	
+			update(update: ViewUpdate) {
+				if (update.docChanged || update.viewportChanged || update.selectionSet)
+					this.decorations = getCheckboxDecorators(update.view, checkboxPosition);
+			}
 		},
-	}
-);
+		{
+			decorations: (value) => value.decorations,
+			eventHandlers: {
+				mousedown: (e, view) => {
+					const target = e.target as HTMLElement;
+					if (
+						target &&
+						target.nodeName === 'INPUT' &&
+						target.classList.contains(TOGGLE_CLASSNAME)
+					) {
+						return toggleBoolean(view, view.posAtDOM(target));
+					}
+					return false;
+				},
+			},
+		}
+)};
