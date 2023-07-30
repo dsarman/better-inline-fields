@@ -42,8 +42,8 @@ export class BetterInlineFieldsSettingTab extends PluginSettingTab {
 			.setName('Boolean inline field checkbox position')
 			.setDesc('Position of the checkbox for inline boolean fields (eg. "value:: true" and "[[value:: true]]")')
 			.addDropdown((dropdown) => {
-				dropdown.addOption('left', 'Begging of line');
-				dropdown.addOption('right', 'After the value');
+				dropdown.addOption('left', 'Beginning of line');
+				dropdown.addOption('right', 'After value');
 				dropdown.addOption('none', 'None');
 				dropdown.onChange(async (newValue) => {
 					if (!isCheckboxPosition(newValue)) return;
