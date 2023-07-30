@@ -69,31 +69,29 @@ function createDecorator(
 	index: number,
 	kind: boolean,
 	from: number,
-	replace: boolean,
 	checkboxPosition: CheckboxPosition,
 	leftStart?: number,
 ): [Decoration, number, number] | null {
 	if (checkboxPosition === 'none') return null;
 	// If either boolean value was found, we create the checkbox widget
 	let deco: Decoration;
-	if (replace) {
+	if (checkboxPosition === 'replace') {
 		deco = Decoration.replace({
 			widget: new CheckboxWidget(kind),
 		});
 	} else {
 		deco = Decoration.widget({
 			widget: new CheckboxWidget(kind),
-			side: 1,
 		});
 	}
 
 	const fromIndex = from + index + 3;
 	const toIndex =
 		fromIndex - 3 + (kind ? TRUE_VALUE.length : FALSE_VALUE.length);
-	if (replace) {
+	if (checkboxPosition === 'replace') {
 		return [deco, fromIndex, toIndex];
 	} else {
-		if (checkboxPosition === 'left' && leftStart) {
+		if (checkboxPosition === 'left' && leftStart !== undefined) {1
 			return [deco, from + leftStart, from + leftStart];
 		} else if (checkboxPosition === 'right') {
 			return [deco, toIndex, toIndex];
@@ -109,7 +107,6 @@ function addDecoratorsForLine(
 	line: string,
 	from: number,
 	builder: RangeSetBuilder<Decoration>,
-	shouldReplace: boolean,
 	checkboxPosition: CheckboxPosition
 ) {
 	const trueIndices = getIndicesOf(line, TRUE_VALUE).map((index) => ({
@@ -130,7 +127,7 @@ function addDecoratorsForLine(
 		if (checkboxPosition === 'left') {
 			leftStart = getStartOfLineIndex(line);
 		}
-		const decoratorInfo = createDecorator(index, kind, from, shouldReplace, checkboxPosition, leftStart);
+		const decoratorInfo = createDecorator(index, kind, from, checkboxPosition, leftStart);
 		if (!decoratorInfo) return;
 
 		const [decorator, fromIndex, toIndex] = decoratorInfo;
@@ -148,7 +145,7 @@ function getStartOfLineIndex(line: string): number {
 /**
  * Returns all CodeMirror checkbox decorators for boolean values.
  */
-function getCheckboxDecorators(view: EditorView, checkboxPosition: CheckboxPosition) {
+function getCheckboxDecorators(view: EditorView, checkboxPosition: CheckboxPosition, ) {
 	const builder = new RangeSetBuilder<Decoration>();
 	// We iterate over the visible ranges
 	for (const { from, to } of view.visibleRanges) {
@@ -157,7 +154,7 @@ function getCheckboxDecorators(view: EditorView, checkboxPosition: CheckboxPosit
 
 		for (const lineNumber of range(startLine.number, endLine.number)) {
 			const line = view.state.doc.line(lineNumber);
-			addDecoratorsForLine(line.text, line.from, builder, false, checkboxPosition);
+			addDecoratorsForLine(line.text, line.from, builder, checkboxPosition);
 		}
 	}
 

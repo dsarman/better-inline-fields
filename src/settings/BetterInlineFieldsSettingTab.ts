@@ -2,7 +2,7 @@ import { App, PluginSettingTab, Setting } from 'obsidian';
 import BetterInlineFieldsPlugin from 'main';
 import { FolderSuggest } from 'settings/FolderSuggest';
 
-export type CheckboxPosition = 'left' | 'right' | 'none';
+export type CheckboxPosition = 'left' | 'right' | 'replace' | 'none';
 
 export interface BetterInlineFieldsSettings {
 	autocomplete: { field: string; folder: string }[];
@@ -11,7 +11,7 @@ export interface BetterInlineFieldsSettings {
 }
 
 function isCheckboxPosition(newValue: string): newValue is CheckboxPosition {
-	return ['left', 'right', 'none'].includes(newValue);
+	return ['left', 'right', 'replace', 'none'].includes(newValue);
 }
 
 export class BetterInlineFieldsSettingTab extends PluginSettingTab {
@@ -40,10 +40,11 @@ export class BetterInlineFieldsSettingTab extends PluginSettingTab {
 
 		new Setting(this.containerEl)
 			.setName('Boolean inline field checkbox position')
-			.setDesc('Position of the checkbox for inline boolean fields (eg. "value:: true" and "[[value:: true]]")')
+			.setDesc('Position of the checkbox for inline boolean fields (eg. "value:: true" and "[[value:: true]]"). Reload Obisidian for the change to take effect.')
 			.addDropdown((dropdown) => {
 				dropdown.addOption('left', 'Beginning of line');
 				dropdown.addOption('right', 'After value');
+				dropdown.addOption('replace', 'Replace value');
 				dropdown.addOption('none', 'None');
 				dropdown.setValue(this.plugin.settings.checkboxPosition);
 				dropdown.onChange(async (newValue) => {
