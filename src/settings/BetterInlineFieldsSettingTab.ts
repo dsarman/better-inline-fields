@@ -45,6 +45,7 @@ export class BetterInlineFieldsSettingTab extends PluginSettingTab {
 				dropdown.addOption('left', 'Beginning of line');
 				dropdown.addOption('right', 'After value');
 				dropdown.addOption('none', 'None');
+				dropdown.setValue(this.plugin.settings.checkboxPosition);
 				dropdown.onChange(async (newValue) => {
 					if (!isCheckboxPosition(newValue)) return;
 					this.plugin.settings.checkboxPosition = newValue;
