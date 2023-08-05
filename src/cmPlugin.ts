@@ -14,6 +14,8 @@ const TRUE_VALUE = ':: true';
 const FALSE_VALUE = ':: false';
 const TOGGLE_CLASSNAME = 'bif-boolean-toggle';
 
+const FIELD_REGEX = /.*::\s*(true|false)/g;
+
 /**
  * CodeMirror widget that display a checkbox
  */
@@ -164,13 +166,23 @@ function getCheckboxDecorators(view: EditorView, checkboxPosition: CheckboxPosit
 /**
  * Toggles boolean value on given position.
  */
-const toggleBoolean = (view: EditorView, pos: number) => {
-	const before = view.state.doc.sliceString(Math.max(0, pos - 5), pos);
+const toggleBoolean = (view: EditorView, pos: number, checkboxPosition: CheckboxPosition) => {
+	let to
+	if (checkboxPosition === 'left' || checkboxPosition === 'replace') {
+		const line = view.state.doc.lineAt(pos);
+		const match = line.text.match(FIELD_REGEX);
+		if (!match) return false;
+		to = line.from + match[0].length;
+	} else {
+		to = pos;
+	}
+	const valueText = view.state.doc.sliceString(Math.max(0, to - 5), to);
+
 	let changes;
-	if (before === 'false') {
-		changes = { from: pos - 5, to: pos, insert: 'true' };
-	} else if (before.endsWith('true')) {
-		changes = { from: pos - 4, to: pos, insert: 'false' };
+	if (valueText === 'false') {
+		changes = { from: to - 5, to, insert: 'true' };
+	} else if (valueText.endsWith('true')) {
+		changes = { from: to - 4, to, insert: 'false' };
 	} else {
 		return false;
 	}
@@ -205,7 +217,7 @@ export const checkboxPlugin = (checkboxPosition: CheckboxPosition) => {
 						target.nodeName === 'INPUT' &&
 						target.classList.contains(TOGGLE_CLASSNAME)
 					) {
-						return toggleBoolean(view, view.posAtDOM(target));
+						return toggleBoolean(view, view.posAtDOM(target), checkboxPosition);
 					}
 					return false;
 				},
