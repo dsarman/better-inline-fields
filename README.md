@@ -13,10 +13,6 @@ Simple Obsidian plugin that aims to improve work with [Dataview inline fields](h
 
 ![Pages Autocomplete](https://raw.githubusercontent.com/dsarman/better-inline-fields/master/imgs/field-autocomplete.gif)
 
-
-## Planned
-- [ ] Add autocomplete to field values based on same name field in other files.
-
 ## Other Plugins
 ### Compatible
 - [Checklist Soundeffects](https://github.com/sfdrada/Checklist-Soundeffect) - allows one to add sound effects when toggling checkboxes.
